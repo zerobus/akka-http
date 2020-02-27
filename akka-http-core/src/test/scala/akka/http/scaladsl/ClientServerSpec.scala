@@ -13,6 +13,11 @@ import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future, Promise }
 import scala.util.{ Success, Try }
+
+import com.typesafe.sslconfig.akka.AkkaSSLConfig
+import com.typesafe.sslconfig.ssl.SSLConfigSettings
+import com.typesafe.sslconfig.ssl.SSLLooseConfig
+
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.event.Logging.LogEvent
@@ -33,8 +38,7 @@ import akka.stream._
 import akka.testkit._
 import akka.util.ByteString
 import com.typesafe.config.{ Config, ConfigFactory }
-import com.typesafe.sslconfig.akka.AkkaSSLConfig
-import com.typesafe.sslconfig.ssl.{ SSLConfigSettings, SSLLooseConfig }
+import javax.net.ssl.{ SSLContext, TrustManagerFactory }
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.concurrent.Eventually.eventually
 
@@ -657,7 +661,7 @@ Host: example.com
         .withConnectionSettings(ClientConnectionSettings(system)
           .withSocketOptions(SO.ReceiveBufferSize(serverToClientNetworkBufferSize) :: Nil))
         .withTransport(ExampleHttpContexts.proxyTransport(serverBinding.localAddress))
-      val clientConnectionContext = ConnectionContext.https(ExampleHttpContexts.exampleClientContext.sslContext)
+      val clientConnectionContext = ExampleHttpContexts.exampleClientContext
 
       Http()
         .singleRequest(request, connectionContext = clientConnectionContext, settings = clientSettings)
